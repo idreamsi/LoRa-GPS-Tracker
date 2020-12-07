@@ -3,7 +3,8 @@
  * LoRa GPS Tracker by Wio Terminal
  * Live tracking on OpenStreetMap with GPS over LoRa
  * Please find more details at instructables:
- * https://www.hackster.io/idreams/
+ * Please find more details at instructables:
+ * https://www.hackster.io/idreams/lora-gps-tracker-by-wio-terminal-5d8647
  * 
  ******************************************************************************/
 #include <TinyGPS++.h>
