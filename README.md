@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="516" height="600" src="https://github.com/idreamsi/LoRa-GPS-Tracker/blob/main/main.png?raw=true">
+  <img width="550" height="413" src="https://github.com/idreamsi/LoRa-GPS-Tracker/blob/main/main.png?raw=true">
 </p>
 
 ## 📖 About
