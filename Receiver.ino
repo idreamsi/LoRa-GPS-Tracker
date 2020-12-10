@@ -213,11 +213,11 @@ void LoRaEvent()
       if(recTest == "SOS"){
         ShowMessage("[S.O.S] Message Received.", 196);
         #ifdef BUZZER
-    			int addr_str = incomingString.indexOf(',');
-    			String RCV = incomingString.substring(0,addr_str);
+          int addr_str = incomingString.indexOf(',');
+          String RCV = incomingString.substring(0,addr_str);
           int addr_midd = incomingString.indexOf(',', addr_str + 1);
           String RCV_int = incomingString.substring(addr_str + 1, addr_midd);
-    			playTone(230, RCV_int.toInt());
+          playTone(230, RCV_int.toInt());
         #endif
       }else{
         int addr_start = incomingString.indexOf(',');
@@ -260,7 +260,7 @@ void LoRaEvent()
             sprintf(timeBuffer, "%02u:%02u:%02u", now.hour(), now.minute(), now.second());
             if (Send_to_my_Server(String(dateBuffer), String(timeBuffer), latitude, longitude)){
                 ShowMessage("Send to server successfully.", 196);
-				//delay(1000);
+		//delay(1000);
             }
           #endif
           
@@ -343,7 +343,7 @@ void ButtonEvent(){
       ShowMessage("[S.O.S] Message Sent.", 196);
      Serial.println("LoRa Packet Sent.");
 	  #ifdef BUZZER
-		  playTone(230, 30);
+          	playTone(230, 30);
 	  #endif 
 	}}
    if (digitalRead(WIO_KEY_A) == LOW) {
@@ -392,14 +392,14 @@ bool UpdateMap(){
     #endif
     
     Serial.print("Downloaded in ");
-	Serial.print(t);
-	Serial.println(" ms."); 
+    Serial.print(t);
+    Serial.println(" ms."); 
     t = millis();
     TJpgDec.drawJpg(0, 0, jpgbuffer, jp);
     t = millis() - t;
     Serial.print("Decoding and rendering: ");
-	Serial.print(t);
-	Serial.println(" ms.");
+    Serial.print(t);
+    Serial.println(" ms.");
     ShowMessage("Downloaded in " + String(t) + " ms.", 196);
     return true;
   }else{return false;} 
