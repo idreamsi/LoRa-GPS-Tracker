@@ -27,7 +27,7 @@ char dateBuffer[16];
 //----------------------------
 //LoRa
 #ifdef ARDUINO_SAMD_VARIANT_COMPLIANCE
-    #define ShowSerial Serial
+    //RH_RF95<Uart> rf95(Serial1);	//for Hardware serial
     static Uart Serial3(&sercom3, PIN_WIRE_SCL, PIN_WIRE_SDA, SERCOM_RX_PAD_1, UART_TX_PAD_0);
     RH_RF95 <Uart> rf95(Serial3);
 #endif
