@@ -61,6 +61,40 @@ File myFile;
 TFT_eSPI tft = TFT_eSPI();
 
 //---------------------------------------------------------------------
+#define DISTANCE_CAL
+const double HOME_LAT = 11.123456;                          // Enter Your Latitude and Longitude here
+const double HOME_LNG = 12.654321;                         // to track how far away the "Sender" is away from Home 
+
+double DistanceBetween2P(double lat1, double long1, double lat2, double long2)
+{
+  // returns distance in meters between two positions, both specified
+  // as signed decimal-degrees latitude and longitude. Uses great-circle
+  // distance computation for hypothetical sphere of radius 6372795 meters.
+  // Because Earth is no exact sphere, rounding errors may be up to 0.5%.
+  // Courtesy of Maarten Lamers
+  double delta = radians(long1-long2);
+  double sdlong = sin(delta);
+  double cdlong = cos(delta);
+  lat1 = radians(lat1);
+  lat2 = radians(lat2);
+  double slat1 = sin(lat1);
+  double clat1 = cos(lat1);
+  double slat2 = sin(lat2);
+  double clat2 = cos(lat2);
+  delta = (clat1 * slat2) - (slat1 * clat2 * cdlong);
+  delta = sq(delta);
+  delta += sq(clat2 * sdlong);
+  delta = sqrt(delta);
+  double denom = (slat1 * slat2) + (clat1 * clat2 * cdlong);
+  delta = atan2(delta, denom);
+  return delta * 6372795;
+}
+//---------------------------------------------------------------------
+double StringToDouble(String & str)
+{
+  return atof(str.c_str());
+}
+//---------------------------------------------------------------------
 //"http://osm-static-maps.herokuapp.com/?geojson=[{'type':'Point','coordinates':[113.943668,22.575171]}]&height=192&width=320&zoom=16&type=jpeg&attribution=Wio Terminal Tracker&quality=90"
 
 bool getDatafromLink(){
@@ -401,6 +435,15 @@ bool UpdateMap(){
     Serial.print(t);
     Serial.println(" ms.");
     ShowMessage("Downloaded in " + String(t) + " ms.", 196);
+	  
+    #ifdef DISTANCE_CAL
+      float Distance_To_Home;                                       // variable to store Distance to Home  
+      double GPSlat = (StringToDouble(longitude));                  // variable to store latitude
+      double GPSlng = (StringToDouble(latitude));                   // variable to store longitude 
+      Distance_To_Home = (unsigned long) DistanceBetween2P(GPSlat, GPSlng, HOME_LAT, HOME_LNG);
+      ShowMessage("Distance to HOME: " + String(int(Distance_To_Home)) + " m", 196);
+    #endif  
+	  
     return true;
   }else{return false;} 
 }
