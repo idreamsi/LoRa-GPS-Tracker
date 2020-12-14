@@ -52,9 +52,9 @@ String DeviceName = "";
 uint8_t* jpgbuffer;
 unsigned long jp = 0;
 
-const int maxZoomLevel = 17;	//max Zoom Level
+const int maxZoomLevel = 17;	//Max Zoom Level
 const int minZoomLevel = 12;	//Min Zoom Level	
-int ZoomLevel = 16;    		//default Zoom level	
+int ZoomLevel = 16;    		//Default Zoom level	
 int QualityJPG = 60;  		//Map Quality
 
 File myFile;
