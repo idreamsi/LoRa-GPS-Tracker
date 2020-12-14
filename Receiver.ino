@@ -387,7 +387,7 @@ void ButtonEvent(){
       ZoomLevel--;
       Serial.println("ZoomLevel: ");
       Serial.println(ZoomLevel);
-      if(UpdateMap()){Serial.println("Image Downloaded.");}
+      if(UpdateMap()){Serial.println("Image Downloaded.");ShowMessage("Zoom Level: " + String(ZoomLevel), 196);}
     }
    }
    else if (digitalRead(WIO_KEY_B) == LOW) {
@@ -396,7 +396,7 @@ void ButtonEvent(){
       ZoomLevel = 16;
       Serial.println("ZoomLevel: ");
       Serial.println(ZoomLevel);
-      if(UpdateMap()){Serial.println("Image Downloaded.");}
+      if(UpdateMap()){Serial.println("Image Downloaded.");ShowMessage("Zoom Level: " + String(ZoomLevel), 196);}
     }
    }
    else if (digitalRead(WIO_KEY_C) == LOW) {
@@ -406,7 +406,7 @@ void ButtonEvent(){
       ZoomLevel++;
       Serial.println("ZoomLevel: ");
       Serial.println(ZoomLevel);
-      if(UpdateMap()){Serial.println("Image Downloaded.");}
+      if(UpdateMap()){Serial.println("Image Downloaded.");ShowMessage("Zoom Level: " + String(ZoomLevel), 196);}
     }
    }
    delay(200);
