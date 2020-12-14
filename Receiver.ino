@@ -35,18 +35,18 @@ char dateBuffer[16];
 #define SEND_TO_SERVER
 //#define SD_LOG
 #define BUZZER
-#define MAP_WIDTH 320
-#define MAP_HEIGHT 192
+#define MAP_WIDTH 320		//Map Width
+#define MAP_HEIGHT 192		//Map Height
 const char* WIFI_SSID = "Your_AP";
 const char* PASSWORD = "Please_Input_Your_Password_Here";
 
 String prevCoarseLatitude, prevCoarseLongitude;
-String latitude = "N/A";
-String longitude = "N/A";
+String latitude = "N/A";	//To store latitude
+String longitude = "N/A";	//To store longitude
 
-String TempData = "N/A";
-String HumData = "N/A";
-String DeviceName = "";
+String TempData = "N/A";	//To store Temperature
+String HumData = "N/A";		//To store Humidity
+String DeviceName = "";		//Not used in this project.
 
 #define BUFSIZE 50000 
 uint8_t* jpgbuffer;
