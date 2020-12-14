@@ -52,10 +52,10 @@ String DeviceName = "";
 uint8_t* jpgbuffer;
 unsigned long jp = 0;
 
-const int maxZoomLevel = 17;
-const int minZoomLevel = 12;
-int ZoomLevel = 16;
-int QualityJPG = 60;  //Map Quality
+const int maxZoomLevel = 17;	//max Zoom Level
+const int minZoomLevel = 12;	//Min Zoom Level	
+int ZoomLevel = 16;    		//default Zoom level	
+int QualityJPG = 60;  		//Map Quality
 
 File myFile;
 TFT_eSPI tft = TFT_eSPI();
