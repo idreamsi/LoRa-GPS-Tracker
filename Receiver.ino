@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * LoRa GPS Tracker by Wio Terminal
+ * LoRa GPS Tracker with Wio Terminal
  * Live tracking on OpenStreetMap with GPS over LoRa
  * Please find more details at Hackster.io:
  * https://www.hackster.io/idreams/lora-gps-tracker-by-wio-terminal-5d8647
