@@ -1,4 +1,4 @@
-A ready-made version of the firmware for Seeeduino XIAO,
+A ready-made version of the firmware for Seeeduino XIAO [as a sender],
 
 To upload the firmware, you need XIAO to enter the bootloader mode.
 
