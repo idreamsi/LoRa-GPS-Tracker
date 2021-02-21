@@ -7,26 +7,37 @@
  * 
  ******************************************************************************/
 #include <TinyGPS++.h>
-#include <SoftwareSerial.h>
 #include <RH_RF95.h>
 #include "DHT.h"
 #include "OneButton.h"
+#include "wiring_private.h"		// for pinPeripheral() function
 
-int BuzzerPin = 14;
-#define BUTTON_INPUT A1
+#define USE_XIAO
+
+#ifdef USE_XIAO
+    #define BUTTON_INPUT 9
+    #define DHTPIN 1
+    int BuzzerPin = 10;
+#else
+    #define BUTTON_INPUT A1
+    #define DHTPIN 16
+    int BuzzerPin = 14;
+#endif
+
 OneButton button(BUTTON_INPUT, true);
-
 bool Send_GPS_LoRa = 1;
-#define DHTPIN 16 
-#define DHTTYPE DHT11
+#define DHTTYPE DHT11 
 DHT dht(DHTPIN, DHTTYPE);
 
 String DeviceName ="N1";
 const long interval = 15000; 
 unsigned long previousMillis = 0;
 
-
-#ifdef __AVR__
+#ifdef ARDUINO_SAMD_VARIANT_COMPLIANCE
+    static Uart SSerial(&sercom2, PIN_WIRE_SCL, PIN_WIRE_SDA, SERCOM_RX_PAD_1, UART_TX_PAD_0);
+    RH_RF95 <Uart> rf95(SSerial);
+#else
+    #include <SoftwareSerialUSB.h>
     SoftwareSerial SSerial(8, 9);// RX, TX
     RH_RF95<SoftwareSerial> rf95(SSerial);
 #endif
@@ -36,12 +47,10 @@ TinyGPSPlus gps;
 
 #define GPSserial Serial1
 //---------------------------------------------------------
-void SendLoRaPacket(String dataString){  
-  uint8_t data[dataString.length()];
-  dataString.toCharArray(data, dataString.length());
-  if (rf95.send(data, sizeof(data))){
+void SendLoRaPacket(String dataString){
+  if (rf95.send((uint8_t *)dataString.c_str(), dataString.length())){
     rf95.waitPacketSent();
-    Serial.println("LoRa Packet Sent.");
+    SerialUSB.println("LoRa Packet Sent.");
   }
 }
 //---------------------------------------------------------
@@ -53,12 +62,17 @@ void playTone(int duration) {
 //---------------------------------------------------------
 void setup()
 {
-  Serial.begin(115200);
+  SerialUSB.begin(115200);
   pinMode(BuzzerPin, OUTPUT);
   GPSserial.begin(GPSBaud);
   dht.begin();
+  
+#ifdef USE_XIAO  
+  pinPeripheral(PIN_WIRE_SCL, PIO_SERCOM_ALT);
+  pinPeripheral(PIN_WIRE_SDA, PIO_SERCOM_ALT);
+#endif  
   if (!rf95.init()) {
-	Serial.println("LoRa init failed");
+	SerialUSB.println("LoRa init failed");
 	while (1);
   }
   rf95.setFrequency(868.0);
@@ -79,15 +93,15 @@ void loop()
   button.tick();
 
  if (rf95.available()) {
-    Serial.println("LoRa Available");
+    SerialUSB.println("LoRa Available");
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
     if (rf95.recv(buf, &len)) {
       int StrLength = String((char*)buf).length();
       String incomingString = String((char*)buf);
-      Serial.println(incomingString);
+      SerialUSB.println(incomingString);
       String recTest = incomingString.substring(0,3);
-      Serial.println(recTest);
+      SerialUSB.println(recTest);
       if(recTest == "SOS"){
         int addr_str = incomingString.indexOf(',');
         String RCV = incomingString.substring(0,addr_str);
@@ -99,39 +113,49 @@ void loop()
    }
   if (millis() > 5000 && gps.charsProcessed() < 10)
   {
-    Serial.println(F("No GPS detected: check wiring."));
+    SerialUSB.println(F("No GPS detected: check wiring."));
     while(true);
   }
 }
 //---------------------------------------------------------
 void displayInfo()
 {
-  Serial.println();
-  Serial.print(F("Location: ")); 
+  SerialUSB.println();
+  SerialUSB.print(F("Location: ")); 
   if (gps.location.isValid())
   {
-    Serial.print(gps.location.lat(), 6);
-    Serial.print(F(","));
-    Serial.print(gps.location.lng(), 6);
-    //---------------------------------
+    SerialUSB.print(gps.location.lat(), 6);
+    SerialUSB.print(F(","));
+    SerialUSB.print(gps.location.lng(), 6);
+
     int temp = dht.readTemperature();
     int humidity = dht.readHumidity();
-    Serial.println();
-    Serial.print("Temperature: ");
-    Serial.println(temp);
-    Serial.print("Humidity:");
-    Serial.println(humidity);
+
+    SerialUSB.println();
+    SerialUSB.print("Temperature: ");
+    SerialUSB.println(temp);
+    SerialUSB.print("Humidity:");
+    SerialUSB.println(humidity);
     //---------------------------------
     String NewData = (String(gps.location.lat(), 6)) + "," + (String(gps.location.lng(), 6)) + "," + String(temp) + "," + String(humidity) + "," + DeviceName + ".";
-    Serial.println("DATA is: ");
-    Serial.println(NewData);
+    SerialUSB.println("DATA is: ");
+    SerialUSB.println(NewData);
     SendLoRaPacket(NewData);   
   }
 }
 //--------------------------------------------
 void doubleclick()
 {
-    SendLoRaPacket("SOS,1000,1");
+    String data = "SOS,1000,1";
+    SendLoRaPacket(data);
     playTone(10);
-    Serial.println("SOS Button Pressed.");
+    SerialUSB.println("SOS Button Pressed.");
 }
+
+//-------------------------------------------
+#ifdef USE_XIAO
+void SERCOM2_Handler()
+{
+  SSerial.IrqHandler();
+}
+#endif
