@@ -18,7 +18,7 @@
     #define BUTTON_INPUT 9
     #define DHTPIN 1
     int BuzzerPin = 10;
-#else
+#else //Arduino Pro Micro
     #define BUTTON_INPUT A1
     #define DHTPIN 16
     int BuzzerPin = 14;
