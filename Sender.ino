@@ -17,7 +17,7 @@
 #ifdef USE_XIAO
     #define BUTTON_INPUT 9
     #define DHTPIN 1
-    int BuzzerPin = 10;
+    int BuzzerPin = 0;
 #else //Arduino Pro Micro
     #define BUTTON_INPUT A1
     #define DHTPIN 16
