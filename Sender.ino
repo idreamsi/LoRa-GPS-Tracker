@@ -67,7 +67,7 @@ void setup()
   GPSserial.begin(GPSBaud);
   dht.begin();
   
-#ifdef USE_XIAO  
+#ifdef UARDUINO_SAMD_VARIANT_COMPLIANCE  
   pinPeripheral(PIN_WIRE_SCL, PIO_SERCOM_ALT);
   pinPeripheral(PIN_WIRE_SDA, PIO_SERCOM_ALT);
 #endif  
