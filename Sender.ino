@@ -18,7 +18,7 @@
     int BuzzerPin = 0;
 #endif
 
-#ifdef __AVR__ 		//Arduino Pro Micro
+#ifdef __AVR__ 					//Arduino Pro Micro
     #define BUTTON_INPUT A1
     #define DHTPIN 16
     int BuzzerPin = 14;
@@ -76,10 +76,10 @@ void setup()
 	while (1);
   }
 
-   // The default transmitter power is 13dBm, using PA_BOOST.
-   // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
-   // you can set transmitter powers from 5 to 23 dBm:
-   //rf95.setTxPower(13, false);
+  // The default transmitter power is 13dBm, using PA_BOOST.
+  // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
+  // you can set transmitter powers from 5 to 23 dBm:
+  //rf95.setTxPower(13, false);
 	
   //Select the correct frequency. https://www.thethingsnetwork.org/docs/lorawan/frequencies-by-country/	
   rf95.setFrequency(868.0);
@@ -122,7 +122,7 @@ void loop()
    }
   if (millis() > 5000 && gps.charsProcessed() < 10)
   {
-    SerialUSB.println(F("No GPS detected: check wiring."));
+    SerialUSB.println(F("No GPS detected: Check wiring."));
     while(true);
   }
 }
