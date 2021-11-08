@@ -10,15 +10,15 @@
 #include <RH_RF95.h>
 #include "DHT.h"
 #include "OneButton.h"
-#include "wiring_private.h"		// for pinPeripheral() function, If you are not using XIAO comment this line.
 
-#define USE_XIAO
-
-#ifdef USE_XIAO
+#ifdef UARDUINO_SAMD_VARIANT_COMPLIANCE
+    #include "wiring_private.h"			// for pinPeripheral() function
     #define BUTTON_INPUT 9
     #define DHTPIN 1
     int BuzzerPin = 0;
-#else //Arduino Pro Micro
+#endif
+
+#ifdef __AVR__ 		//Arduino Pro Micro
     #define BUTTON_INPUT A1
     #define DHTPIN 16
     int BuzzerPin = 14;
@@ -162,7 +162,7 @@ void doubleclick()
 }
 
 //-------------------------------------------
-#ifdef USE_XIAO
+#ifdef UARDUINO_SAMD_VARIANT_COMPLIANCE
 void SERCOM2_Handler()
 {
   SSerial.IrqHandler();
