@@ -77,7 +77,8 @@ void setup()
   }
   //Select the correct frequency. https://www.thethingsnetwork.org/docs/lorawan/frequencies-by-country/	
   rf95.setFrequency(868.0);
-  //rf95.setFrequency(434.0);	
+  //rf95.setFrequency(434.0);
+	
   button.attachDoubleClick(doubleclick);
 }
 //---------------------------------------------------------
