@@ -72,7 +72,7 @@ void setup()
   pinPeripheral(PIN_WIRE_SDA, PIO_SERCOM_ALT);
 #endif  
   if (!rf95.init()) {
-	SerialUSB.println("LoRa init failed");
+	SerialUSB.println("LoRa init failed.");
 	while (1);
   }
   rf95.setFrequency(868.0);
