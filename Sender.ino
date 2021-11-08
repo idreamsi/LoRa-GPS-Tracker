@@ -10,15 +10,15 @@
 #include <RH_RF95.h>
 #include "DHT.h"
 #include "OneButton.h"
+#include "wiring_private.h"	// for pinPeripheral() function, If you are not using XIAO comment this line.
 
-#ifdef UARDUINO_SAMD_VARIANT_COMPLIANCE
-    #include "wiring_private.h"			// for pinPeripheral() function
+#define USE_XIAO
+
+#ifdef USE_XIAO
     #define BUTTON_INPUT 9
     #define DHTPIN 1
     int BuzzerPin = 0;
-#endif
-
-#ifdef __AVR__ 					//Arduino Pro Micro
+#else				//Arduino Pro Micro
     #define BUTTON_INPUT A1
     #define DHTPIN 16
     int BuzzerPin = 14;
@@ -67,7 +67,7 @@ void setup()
   GPSserial.begin(GPSBaud);
   dht.begin();
   
-#ifdef UARDUINO_SAMD_VARIANT_COMPLIANCE  
+#ifdef USE_XIAO 
   pinPeripheral(PIN_WIRE_SCL, PIO_SERCOM_ALT);
   pinPeripheral(PIN_WIRE_SDA, PIO_SERCOM_ALT);
 #endif  
@@ -162,7 +162,7 @@ void doubleclick()
 }
 
 //-------------------------------------------
-#ifdef UARDUINO_SAMD_VARIANT_COMPLIANCE
+#ifdef USE_XIAO
 void SERCOM2_Handler()
 {
   SSerial.IrqHandler();
