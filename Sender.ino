@@ -119,11 +119,11 @@ void loop()
 }
 //---------------------------------------------------------
 void displayInfo()
-{
-  SerialUSB.println();
-  SerialUSB.print(F("Location: ")); 
+{ 
   if (gps.location.isValid())
   {
+    SerialUSB.println();
+    SerialUSB.print(F("Location: "));  
     SerialUSB.print(gps.location.lat(), 6);
     SerialUSB.print(F(","));
     SerialUSB.print(gps.location.lng(), 6);
