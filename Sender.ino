@@ -10,7 +10,7 @@
 #include <RH_RF95.h>
 #include "DHT.h"
 #include "OneButton.h"
-#include "wiring_private.h"		// for pinPeripheral() function
+#include "wiring_private.h"		// for pinPeripheral() function, If you are not using XIAO comment this line.
 
 #define USE_XIAO
 
