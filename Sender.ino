@@ -76,6 +76,7 @@ void setup()
 	while (1);
   }
   rf95.setFrequency(868.0);
+  //rf95.setFrequency(434.0);	
   button.attachDoubleClick(doubleclick);
 }
 //---------------------------------------------------------
