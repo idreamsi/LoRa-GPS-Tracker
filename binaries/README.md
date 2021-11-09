@@ -7,4 +7,4 @@ To upload the firmware, you need XIAO to enter the bootloader mode.
 2. Use tweezers or short lines to short the RST pins twice quickly.
 3. The orange LED lights flicker on and light up.
 
-An external drive named Arduino should appear in your PC. Drag the the downloaded CURRENT.UF2 files to the Arduino drive.
+An external drive named Arduino should appear in your PC. Drag the the downloaded ```UF2 files``` to the Arduino drive.
