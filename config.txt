@@ -1,0 +1,14 @@
+WifiSSID=your_WiFi_ssid
+WifiPASS=your_WiFi_password
+SendToServer=false
+MyServer=yourserver.com
+SDLog=false
+Buzzer=true
+ZoomLevel=16
+QualityJPG=20
+BufferSIZE=29000
+MapType=hot
+HomeLAT=11.123456
+HomeLNG=12.654321
+LoRaFrequency=868.0
+DistanceCalc=true
