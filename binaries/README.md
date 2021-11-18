@@ -1,6 +1,6 @@
 A ready-made version of the firmware for [Seeeduino XIAO](https://www.seeedstudio.com/Seeeduino-XIAO-Arduino-Microcontroller-SAMD21-Cortex-M0+-p-4426.html) and [Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html),
 
-To upload the firmware, you need XIAO to enter the bootloader mode.
+To upload the firmware, you need ```XIAO``` and ```Wio Terminal``` to enter the bootloader mode.
 
 # Enter Bootloader Mode
 1. Connect the Seeeduino XIAO to your computer.
