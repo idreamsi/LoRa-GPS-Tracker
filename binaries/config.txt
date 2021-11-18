@@ -10,5 +10,5 @@ BufferSIZE=29000
 MapType=hot
 HomeLAT=11.123456
 HomeLNG=12.654321
-LoRaFrequency=868.0
 DistanceCalc=true
+LoRaFrequency=868.0
