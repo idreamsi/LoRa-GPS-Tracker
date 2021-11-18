@@ -2,9 +2,14 @@ A ready-made version of the firmware for [Seeeduino XIAO](https://www.seeedstudi
 
 To upload the firmware, you need ```XIAO``` and ```Wio Terminal``` to enter the bootloader mode.
 
-# Enter Bootloader Mode
+# XIAO: Enter Bootloader Mode
 1. Connect the Seeeduino XIAO to your computer.
 2. Use tweezers or short lines to short the RST pins twice quickly.
 3. The orange LED lights flicker on and light up.
+
+# Wio Terminal: Enter Bootloader Mode
+Entering the bootloader mode by sliding the power switch twice quickly. 
+To Enter Bootloader: Slide the switch twice very quickly
+
 
 An external drive named Arduino should appear in your PC. Drag the the downloaded ```UF2 files``` to the Arduino drive.
