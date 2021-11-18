@@ -7,17 +7,20 @@
  * 
  ******************************************************************************/
 #include <wiring_private.h>
-#include <TJpg_Decoder.h>
-#include <rpcWiFi.h>
+#include <SDConfigFile.h>
+#include <SPI.h>
 #include <HTTPClient.h>
 #include <TFT_eSPI.h>
 #include "Free_Fonts.h"
 #include <RH_RF95.h>
 #include <Seeed_FS.h>
 #include "SD/Seeed_SD.h"
-#include <SPI.h>
 #include "RTC_SAMD51.h"
 #include "DateTime.h"
+#include "rpcWiFi.h"
+#include <TJpg_Decoder.h>
+
+String _VERSION = "v1.1";
 //----------------------------
 //RTC
 RTC_SAMD51 rtc;
@@ -32,13 +35,15 @@ char dateBuffer[16];
     RH_RF95 <Uart> rf95(Serial3);
 #endif
 
-#define SEND_TO_SERVER
+const char CONFIG_FILE[] = "config.txt";
+
+//#define SEND_TO_SERVER
 //#define SD_LOG
-#define BUZZER
+//#define BUZZER
 #define MAP_WIDTH 320		//Map Width
 #define MAP_HEIGHT 192		//Map Height
-const char* WIFI_SSID = "Your_AP";
-const char* PASSWORD = "Please_Input_Your_Password_Here";
+//const char* WIFI_SSID = "Your_AP";
+//const char* PASSWORD = "Please_Input_Your_Password_Here";
 
 String prevCoarseLatitude, prevCoarseLongitude;
 String latitude = "N/A";	//To store latitude
@@ -48,23 +53,40 @@ String TempData = "N/A";	//To store Temperature
 String HumData = "N/A";		//To store Humidity
 String DeviceName = "";		//Not used in this project.
 
-#define BUFSIZE 50000 
+int BUFSIZE;
 uint8_t* jpgbuffer;
 unsigned long jp = 0;
 
 const int maxZoomLevel = 17;	//Max Zoom Level
 const int minZoomLevel = 12;	//Min Zoom Level	
-int ZoomLevel = 16;    		//Default Zoom level	
-int QualityJPG = 60;  		//Map Quality
+//int ZoomLevel = 16;    			//Default Zoom level	
+//int QualityJPG = 60;  			//Map Quality
 
 File myFile;
 TFT_eSPI tft = TFT_eSPI();
 
-//---------------------------------------------------------------------
-#define DISTANCE_CAL
-const double HOME_LAT = 11.123456;                          // Enter Your Latitude and Longitude here
-const double HOME_LNG = 12.654321;                         // to track how far away the "Sender" is away from Home 
+//----------------------------
+double HOME_LAT;                          // Enter Your Latitude and Longitude here
+double HOME_LNG;                         // to track how far away the "Sender" is away from Home\\ 
+//----------------------------
+boolean didReadConfig;
+char* WIFI_SSID;
+char* PASSWORD;
+boolean BUZZER;
+boolean SEND_TO_SERVER;
+boolean SD_LOG;
+int QualityJPG;
+int ZoomLevel;
+String HomeLAT;
+String HomeLNG;
+String BufferSize;
+String MapType;
+float LoRaFrequency;
+char* MyServer;
+boolean DISTANCE_CALC;
 
+boolean readConfiguration();
+//----------------------------
 double DistanceBetween2P(double lat1, double long1, double lat2, double long2)
 {
   // returns distance in meters between two positions, both specified
@@ -96,9 +118,14 @@ double StringToDouble(String & str)
 }
 //---------------------------------------------------------------------
 //"http://osm-static-maps.herokuapp.com/?geojson=[{'type':'Point','coordinates':[113.943668,22.575171]}]&height=192&width=320&zoom=16&type=jpeg&attribution=Wio Terminal Tracker&quality=90"
+//http://idreams.ir/osm/map.php?center=35.661261,51.379574&zoom=17&size=320x192&maptype=cedar&markers=35.661261,51.379574,bullseye&quality=100
+//http://maps.google.com/?q=lat,lng
+
 
 bool getDatafromLink(){
-  return getData("http://osm-static-maps.herokuapp.com/?geojson=[{'type':'Point','coordinates':[" + longitude + "," + latitude + "]}]&height=" + String(MAP_HEIGHT) + "&width=" + String(MAP_WIDTH) + "&zoom=" + String(ZoomLevel) + "&type=jpeg&attribution=Wio Terminal Tracker&quality=" + String(QualityJPG), jpgbuffer);
+  //return getData("http://osm-static-maps.herokuapp.com/?geojson=[{'type':'Point','coordinates':[" + longitude + "," + latitude + "]}]&height=" + String(MAP_HEIGHT) + "&width=" + String(MAP_WIDTH) + "&zoom=" + String(ZoomLevel) + "&type=jpeg&attribution=Wio Terminal Tracker&quality=" + String(QualityJPG), jpgbuffer);
+  return getData("http://idreams.ir/osm/map.php?center="+ latitude + "," + longitude + "&zoom=" + String(ZoomLevel) + "&size=" + String(MAP_WIDTH) + "x" + String(MAP_HEIGHT) + "&maptype=" + MapType + "&markers="+ latitude + "," + longitude + ",bullseye&quality=" + String(QualityJPG), jpgbuffer);
+  //return getData("http://idreams.ir/osm/map.php?center="+ latitude + "," + longitude + "&zoom=" + String(ZoomLevel) + "&size=" + String(MAP_WIDTH) + "x" + String(MAP_HEIGHT) + "&maptype=cedar" + "&markers="+ latitude + "," + longitude + ",bullseye&quality=" + String(QualityJPG), jpgbuffer);
   }
 //---------------------------------------------------------------------
 void playTone(int tone, int duration) {
@@ -110,10 +137,10 @@ void playTone(int tone, int duration) {
 bool Send_to_my_Server(String date_format, String time_format, String lat_format, String lon_format){
   if ((WiFi.status() == WL_CONNECTED)) {
 
-  char server[] = "yourserver.com";
+  //char server[] = "yourserver.com";
   int port = 80; // HTTP
   WiFiClient client;
-  if (client.connect(server, port))
+  if (client.connect(MyServer, port))
     {
       Serial.println("connected");
       String str = "GET /wio_store_data.php?";
@@ -128,7 +155,7 @@ bool Send_to_my_Server(String date_format, String time_format, String lat_format
       client.print(str);
       client.println(" HTTP/1.1");
       client.print("Host: ");
-      client.println(server);
+      client.println(MyServer);
       client.println("Connection: close");
       client.println();
       client.stop();
@@ -182,11 +209,11 @@ void setup() {
  tft.setCursor((320 - tft.textWidth("LoRa GPS Tracker"))/2, 96);
  tft.print("LoRa GPS Tracker");
  tft.setTextFont(1);
- tft.setCursor(183, 100);
- tft.print("by Wio Terminal");
+ tft.setCursor(152, 100);
+ tft.print("by Wio Terminal " + _VERSION);
 //----------------------------------------------
   delay(1000);
-  #ifdef SD_LOG
+  
   if (!SD.begin(SDCARD_SS_PIN, SDCARD_SPI)) {
     Serial.println("SD Card init failed!");
     ShowMessage("SD Card init failed!", 196);
@@ -195,7 +222,19 @@ void setup() {
   Serial.println("SD Card init OK.");
   ShowMessage("SD Card init OK.", 196);
   delay(1000);
-  #endif
+  ShowMessage("Read configuration file from SD.", 196);
+	
+	
+  didReadConfig = readConfiguration();
+  if (!didReadConfig) {
+	Serial.println("Read configuration file failed!");
+    ShowMessage("Read configuration file failed!", 196);
+    while (1);
+  }else{
+    Serial.println("Configuration file loaded.");
+	  ShowMessage("Configuration file loaded.", 196);
+  }
+  delay(1000);
   
   if (!rf95.init())
   {
@@ -206,6 +245,17 @@ void setup() {
   {
     ShowMessage("LoRa init OK.", 196);
   }
+
+  // The default transmitter power is 13dBm, using PA_BOOST.
+  // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
+  // you can set transmitter powers from 5 to 23 dBm:
+  //rf95.setTxPower(13, false);
+  
+  //Select the correct frequency. https://www.thethingsnetwork.org/docs/lorawan/frequencies-by-country/ 
+  //rf95.setFrequency(868.0);
+  //rf95.setFrequency(434.0);
+  rf95.setFrequency(LoRaFrequency);
+  
   delay(1000);
   
 
@@ -227,7 +277,6 @@ void setup() {
   TJpgDec.setCallback(tft_output);	
 	
 
-  rf95.setFrequency(868.0);
   ShowMessage("Waiting for receiving LoRa packet...", 196);
 
 }
@@ -246,13 +295,13 @@ void LoRaEvent()
       Serial.println(recTest);
       if(recTest == "SOS"){
         ShowMessage("[S.O.S] Message Received.", 196);
-        #ifdef BUZZER
+        if (BUZZER){
           int addr_str = incomingString.indexOf(',');
           String RCV = incomingString.substring(0,addr_str);
           int addr_midd = incomingString.indexOf(',', addr_str + 1);
           String RCV_int = incomingString.substring(addr_str + 1, addr_midd);
           playTone(230, RCV_int.toInt());
-        #endif
+        }
       }else{
         int addr_start = incomingString.indexOf(',');
         String LatRCV = incomingString.substring(0,addr_start);
@@ -288,17 +337,17 @@ void LoRaEvent()
               
         if(isMapNeedUpdate){
 
-          #ifdef SEND_TO_SERVER
+          if (SEND_TO_SERVER){
             now = rtc.now();
             sprintf(dateBuffer, "%04u-%02u-%02u", now.year(), now.month(), now.day());      
             sprintf(timeBuffer, "%02u:%02u:%02u", now.hour(), now.minute(), now.second());
             if (Send_to_my_Server(String(dateBuffer), String(timeBuffer), latitude, longitude)){
                 ShowMessage("Send to server successfully.", 196);
-		//delay(1000);
+				//delay(1000);
             }
-          #endif
+          }
           
-          #ifdef SD_LOG
+          if (SD_LOG){
             now = rtc.now();
             sprintf(dateBuffer, "%04u-%02u-%02u", now.year(), now.month(), now.day());      
             sprintf(timeBuffer, "%02u:%02u:%02u", now.hour(), now.minute(), now.second());
@@ -310,11 +359,11 @@ void LoRaEvent()
               myFile.close();
               ShowMessage("Save on SD card successfully.", 196);
             }
-          #endif
+          }
           
-          #ifdef BUZZER
+          if (BUZZER){
             playTone(230, 30);
-          #endif
+          }
           UpdateMap();
         } 
     }
@@ -338,8 +387,8 @@ void ScreenINF()
   String nulltxt = "        ";
   tft.setCursor((105 - tft.textWidth(nulltxt))/2, 212);
   tft.print(nulltxt);
-  tft.setCursor((105 - tft.textWidth(longitude))/2, 212);
-  tft.print(longitude);
+  tft.setCursor((105 - tft.textWidth(latitude))/2, 212);
+  tft.print(latitude);
 
   tft.setCursor(105 + (105 - tft.textWidth(nulltxt))/2, 212);
   tft.print(nulltxt);
@@ -354,8 +403,8 @@ void ScreenINF()
   //-----------------------------------------------------------------
   tft.setCursor((105 - tft.textWidth(nulltxt))/2, 227);
   tft.print(nulltxt);
-  tft.setCursor((105 - tft.textWidth(latitude))/2, 227);
-  tft.print(latitude);
+  tft.setCursor((105 - tft.textWidth(longitude))/2, 227);
+  tft.print(longitude);
 
   tft.setCursor(105 + (105 - tft.textWidth(nulltxt))/2, 227);
   tft.print(nulltxt);
@@ -376,9 +425,9 @@ void ButtonEvent(){
       rf95.waitPacketSent();
       ShowMessage("[S.O.S] Message Sent.", 196);
      Serial.println("LoRa Packet Sent.");
-	  #ifdef BUZZER
+	  if (BUZZER){
           	playTone(230, 30);
-	  #endif 
+	  } 
 	}}
    if (digitalRead(WIO_KEY_A) == LOW) {
     Serial.println("A Key pressed");
@@ -436,13 +485,13 @@ bool UpdateMap(){
     Serial.println(" ms.");
     ShowMessage("Downloaded in " + String(t) + " ms.", 196);
 	  
-    #ifdef DISTANCE_CAL
+    if (DISTANCE_CALC){
       float Distance_To_Home;                                       // variable to store Distance to Home  
-      double GPSlat = (StringToDouble(longitude));                  // variable to store latitude
-      double GPSlng = (StringToDouble(latitude));                   // variable to store longitude 
+      double GPSlat = (StringToDouble(latitude));                  // variable to store latitude
+      double GPSlng = (StringToDouble(longitude));                   // variable to store longitude 
       Distance_To_Home = (unsigned long) DistanceBetween2P(GPSlat, GPSlng, HOME_LAT, HOME_LNG);
       ShowMessage("Distance to HOME: " + String(int(Distance_To_Home)) + " m", 196);
-    #endif  
+	}  
 	  
     return true;
   }else{return false;} 
@@ -496,7 +545,70 @@ bool getData(String url, uint8_t* jpgbuffer) {
     return true; 
   }
 //---------------------------------------------------------------
+boolean readConfiguration() {
+  const uint8_t CONFIG_LINE_LENGTH = 127;
+  SDConfigFile cfg;
+  
+  // Open the configuration file.
+  if (!cfg.begin(CONFIG_FILE, CONFIG_LINE_LENGTH)) {
+    Serial.print("Failed to open configuration file: ");
+    Serial.println(CONFIG_FILE);
+    return false;
+  }
+  // Read each setting from the file.
+  while (cfg.readNextSetting()) {
+    if (cfg.nameIs("WifiSSID")) {
+	WIFI_SSID = cfg.copyValue();
+    } else if (cfg.nameIs("WifiPASS")) {
+	PASSWORD = cfg.copyValue();
+    } else if (cfg.nameIs("SendToServer")) {
+	SEND_TO_SERVER = cfg.getBooleanValue();
+    } else if (cfg.nameIs("MyServer")) {
+	MyServer = cfg.copyValue();
+    } else if (cfg.nameIs("SDLog")) {
+	SD_LOG = cfg.getBooleanValue();
+    } else if (cfg.nameIs("Buzzer")) {
+	BUZZER = cfg.getBooleanValue();
+    } else if (cfg.nameIs("ZoomLevel")) {
+	ZoomLevel = cfg.getIntValue();
+    } else if (cfg.nameIs("QualityJPG")) {
+	QualityJPG = cfg.getIntValue();
+    } else if (cfg.nameIs("BufferSIZE")) {
+	BUFSIZE = cfg.getIntValue();
+	Serial.print("BufferSize: ");
+	Serial.println(BUFSIZE);
+    } else if (cfg.nameIs("MapType")) {
+	MapType = cfg.copyValue();
+    }else if (cfg.nameIs("HomeLAT")) {
+	HomeLAT = cfg.copyValue();
+	HOME_LAT = (StringToDouble(HomeLAT));
+	Serial.print("LAT: ");
+	Serial.println(HOME_LAT);
+    } else if (cfg.nameIs("HomeLNG")) {
+	HomeLNG = cfg.copyValue();
+	HOME_LNG = (StringToDouble(HomeLNG));
+	Serial.print("LNG: ");
+	Serial.println(HOME_LNG);
+    }else if (cfg.nameIs("DistanceCalc")) {
+	DISTANCE_CALC = cfg.getBooleanValue();
+    }else if (cfg.nameIs("LoRaFrequency")) {
+	LoRaFrequency = float(cfg.getIntValue());
+	Serial.print("LoRaFrequency: ");
+	Serial.println(LoRaFrequency);		
+    }else {
+      // report unrecognized names.
+	Serial.print("Unknown name in config: ");
+	Serial.println(cfg.getName());
+    }
+  }
+  
+  // clean up
+  cfg.end();
+  
+  return true;
+}
 
+//---------------------------------------------------------------
 void loop() {
   ButtonEvent();
   LoRaEvent();
