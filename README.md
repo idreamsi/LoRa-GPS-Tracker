@@ -9,7 +9,7 @@ Live tracking on [OpenStreetMap](https://www.openstreetmap.org/) with GPS over L
 
  - v1.1
     - Added save the settings on the memory card
-    - Added personal server for map display
+    - Added new server for map display
     - Bug fixes
 
  - v1.0
