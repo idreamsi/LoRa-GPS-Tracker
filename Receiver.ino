@@ -125,7 +125,7 @@ double StringToDouble(String & str)
 bool getDatafromLink(){
   //return getData("http://osm-static-maps.herokuapp.com/?geojson=[{'type':'Point','coordinates':[" + longitude + "," + latitude + "]}]&height=" + String(MAP_HEIGHT) + "&width=" + String(MAP_WIDTH) + "&zoom=" + String(ZoomLevel) + "&type=jpeg&attribution=Wio Terminal Tracker&quality=" + String(QualityJPG), jpgbuffer);
   return getData("http://idreams.ir/osm/map.php?center="+ latitude + "," + longitude + "&zoom=" + String(ZoomLevel) + "&size=" + String(MAP_WIDTH) + "x" + String(MAP_HEIGHT) + "&maptype=" + MapType + "&markers="+ latitude + "," + longitude + ",bullseye&quality=" + String(QualityJPG), jpgbuffer);
-  //return getData("http://idreams.ir/osm/map.php?center="+ latitude + "," + longitude + "&zoom=" + String(ZoomLevel) + "&size=" + String(MAP_WIDTH) + "x" + String(MAP_HEIGHT) + "&maptype=cedar" + "&markers="+ latitude + "," + longitude + ",bullseye&quality=" + String(QualityJPG), jpgbuffer);
+  //return getData("http://idreams.ir/osm/map.php?center="+ latitude + "," + longitude + "&zoom=" + String(ZoomLevel) + "&size=" + String(MAP_WIDTH) + "x" + String(MAP_HEIGHT) + "&maptype=osmfr" + "&markers="+ latitude + "," + longitude + ",bullseye&quality=" + String(QualityJPG), jpgbuffer);
   }
 //---------------------------------------------------------------------
 void playTone(int tone, int duration) {
