@@ -227,12 +227,12 @@ void setup() {
 	
   didReadConfig = readConfiguration();
   if (!didReadConfig) {
-	Serial.println("Read configuration file failed!");
+    Serial.println("Read configuration file failed!");
     ShowMessage("Read configuration file failed!", 196);
     while (1);
   }else{
     Serial.println("Configuration file loaded.");
-	  ShowMessage("Configuration file loaded.", 196);
+    ShowMessage("Configuration file loaded.", 196);
   }
   delay(1000);
   
