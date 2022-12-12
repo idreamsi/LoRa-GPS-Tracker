@@ -118,7 +118,7 @@ double StringToDouble(String & str)
 }
 //---------------------------------------------------------------------
 //"http://osm-static-maps.herokuapp.com/?geojson=[{'type':'Point','coordinates':[113.943668,22.575171]}]&height=192&width=320&zoom=16&type=jpeg&attribution=Wio Terminal Tracker&quality=90"
-//https://idreams.ir/osm/map.php?center=51.0113684,10.2513058&zoom=17&size=320x192&maptype=hot&markers=51.0113684,10.2513058,bullseye&quality=100
+//http://idreams.ir/osm/map.php?center=51.0113684,10.2513058&zoom=17&size=320x192&maptype=hot&markers=51.0113684,10.2513058,bullseye&quality=100
 //http://maps.google.com/?q=lat,lng
 
 
