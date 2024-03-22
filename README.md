@@ -17,5 +17,9 @@ Live tracking on [OpenStreetMap](https://www.openstreetmap.org/) with GPS over L
     - initial version
 
 # License
-
  This software is written by Ramin Sangesari is licensed under The MIT License.
+
+## 💵 Donation
+If this project help you reduce time to develop, you can give me a cup of coffee :)
+
+- Donate via Bitcoin: 17FjznvUNk8G9UPKsvpVCq9U7z4iDtXVBE
